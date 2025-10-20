@@ -1,0 +1,43 @@
+<link rel="import" href="nuxeo-browser.html">
+<link rel="import" href="elements/nuxeo-folder-slideshow.html">
+
+<nuxeo-slot-content
+  name="picturebookItem"
+  slot="DOCUMENT_VIEWS_ITEMS"
+  bundle="web-ui"
+  order="80">
+  <template>
+    <nuxeo-page-item
+      name="picturebook"
+      label="Picturebook"
+      icon="image:collections">
+    </nuxeo-page-item>
+  </template>
+</nuxeo-slot-content>
+
+<nuxeo-slot-content
+  name="picturebookPage"
+  slot="DOCUMENT_VIEWS_PAGES"
+  bundle="web-ui"
+  order="80">
+  <template>
+    <nuxeo-page name="picturebook">
+      <nuxeo-filter document="[[document]]" expression="document &amp;&amp; document.facets &amp;&amp; document.facets.indexOf('Folderish') &gt; -1">
+        <template>
+          <nuxeo-results
+            id="results"
+            current-page="{{currentPage}}"
+            schemas="dublincore,common,files,uid,thumbnail"
+            enrichers="thumbnail"
+            nxql="SELECT * FROM Document WHERE ecm:parentId = '[[document.uid]]' AND ecm:isTrashed = 0 AND ecm:mixinType != 'HiddenInNavigation' ORDER BY dc:title"
+            page-size="40">
+            <nuxeo-folder-slideshow
+              document="[[document]]"
+              items="[[currentPage.items]]">
+            </nuxeo-folder-slideshow>
+          </nuxeo-results>
+        </template>
+      </nuxeo-filter>
+    </nuxeo-page>
+  </template>
+</nuxeo-slot-content>

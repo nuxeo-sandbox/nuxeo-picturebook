@@ -1,0 +1,48 @@
+<link rel="import" href="elements/picturebook-results.html">
+<link rel="import" href="elements/nuxeo-folder-slideshow.html">
+
+<style is="custom-style">
+  /* When your page name is "pb" (as in your JAR) */
+  nuxeo-page[name="pb"]::shadow #toolbar,
+  nuxeo-page[name="pb"]::shadow #tabs,
+  nuxeo-page[name="pb"]::shadow #header { display: none !important; }
+
+  /* Remove any top spacing the header/tabs would add */
+  nuxeo-page[name="pb"]::shadow .page { padding-top: 0 !important; }
+
+  /* Fallbacks for environments without ShadowDOM (ShadyCSS) */
+  nuxeo-page[name="pb"] #toolbar,
+  nuxeo-page[name="pb"] #tabs,
+  nuxeo-page[name="pb"] #header { display: none !important; }
+  nuxeo-page[name="pb"] .page { padding-top: 0 !important; }
+
+  /* If you also use the Studio page named "picturebook", keep these too: */
+  nuxeo-page[name="picturebook"]::shadow #toolbar,
+  nuxeo-page[name="picturebook"]::shadow #tabs,
+  nuxeo-page[name="picturebook"]::shadow #header { display: none !important; }
+  nuxeo-page[name="picturebook"]::shadow .page { padding-top: 0 !important; }
+  nuxeo-page[name="picturebook"] #toolbar,
+  nuxeo-page[name="picturebook"] #tabs,
+  nuxeo-page[name="picturebook"] #header { display: none !important; }
+  nuxeo-page[name="picturebook"] .page { padding-top: 0 !important; }
+</style>
+
+
+<nuxeo-slot-content name="picturebookItem" slot="DOCUMENT_VIEWS_ITEMS" bundle="web-ui" order="80">
+  <template>
+    <nuxeo-filter document="[[document]]" facet="Folderish">
+      <template>
+        <!-- give this JAR tab a unique label -->
+        <nuxeo-page-item name="pb" label="Picturebook" icon="image:collections"></nuxeo-page-item>
+      </template>
+    </nuxeo-filter>
+  </template>
+</nuxeo-slot-content>
+
+<nuxeo-slot-content name="picturebookPage" slot="DOCUMENT_VIEWS_PAGES" bundle="web-ui" order="80">
+  <template>
+    <nuxeo-page name="pb">
+      <picturebook-results document="[[document]]"></picturebook-results>
+    </nuxeo-page>
+  </template>
+</nuxeo-slot-content>

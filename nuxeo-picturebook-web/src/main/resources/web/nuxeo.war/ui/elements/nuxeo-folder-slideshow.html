@@ -1,0 +1,199 @@
+<dom-module id="nuxeo-folder-slideshow">
+  <template>
+    <style>
+      :host { display:block; }
+
+      .card {
+        max-width: 1100px;
+        margin: 16px auto 24px;
+        background: #fff;
+        border-radius: 14px;
+        box-shadow: 0 6px 20px rgba(0,0,0,.12), 0 2px 6px rgba(0,0,0,.08);
+        overflow: hidden;
+      }
+
+      .stage {
+        position: relative;
+        width: 100%;
+        padding-top: 56.25%;
+        background: #fafafa;
+      }
+
+      /* --- TRACK / SLIDES --------------------------------------------------- */
+      .viewport {
+        position: absolute; inset: 0;
+        overflow: hidden;
+      }
+      .track {
+        height: 100%;
+        display: flex;
+        transition: transform 600ms cubic-bezier(.22,.61,.36,1);
+        will-change: transform;
+      }
+/* before */
+.slide {
+  flex: 0 0 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  padding: 10px;              
+}
+
+/* after */
+.slide {
+  flex: 0 0 100%;
+  min-width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  padding: 0;                 
+  box-sizing: border-box;
+}
+
+.slide-inner {
+  height: 100%;
+  width: 100%;
+  margin: 10px;              
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 10px 24px rgba(0,0,0,.10);
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  transform: scale(.88);
+  opacity: .55;
+  transition: transform 600ms cubic-bezier(.22,.61,.36,1),
+              opacity   600ms cubic-bezier(.22,.61,.36,1),
+              box-shadow 300ms ease;
+}
+      .slide.is-current .slide-inner {
+        transform: scale(1);
+        opacity: 1;
+        box-shadow: 0 14px 32px rgba(0,0,0,.16);
+      }
+
+      img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        display: block;
+      }
+
+      /* --- NAV -------------------------------------------------------------- */
+      .navBtn {
+        position: absolute; top: 50%; transform: translateY(-50%);
+        width: 46px; height: 46px; border-radius: 50%;
+        background: rgba(0,0,0,.56); color:#fff;
+        display: grid; place-items: center;
+        cursor: pointer; user-select: none;
+        transition: background .2s ease, transform .2s ease;
+        z-index: 2;
+      }
+      .navBtn:hover { background: rgba(0,0,0,.7); transform: translateY(-50%) scale(1.06); }
+      .navLeft  { left: 10px; }
+      .navRight { right: 10px; }
+
+      /* --- DOTS ------------------------------------------------------------- */
+      .dots {
+        display:flex; gap:8px; justify-content:center;
+        padding: 12px 0 16px;
+      }
+      .dot {
+        width: 8px; height: 8px; border-radius: 50%;
+        background:#c4c4c4; cursor:pointer;
+        transition: transform .15s ease, background .15s ease;
+      }
+      .dot.active { background: var(--nuxeo-primary-color, #3f51b5); transform: scale(1.35); }
+
+      .empty { padding:24px; text-align:center; color: var(--nuxeo-text-light); }
+      .caption { padding:10px 16px; font-weight:600; color: var(--nuxeo-text-default); }
+    </style>
+
+    <template is="dom-if" if="[[!items.length]]">
+      <div class="empty">No pictures in this folder.</div>
+    </template>
+
+    <template is="dom-if" if="[[items.length]]">
+      <div class="card" on-keydown="_onKey" tabindex="0">
+
+        <div class="stage">
+          <div class="navBtn navLeft"  on-click="_prev" aria-label="Previous">&#10094;</div>
+          <div class="navBtn navRight" on-click="_next" aria-label="Next">&#10095;</div>
+
+          <div class="viewport">
+            <div class="track" style$="[[_trackTransform(index)]]">
+              <template is="dom-repeat" items="[[items]]" as="it" index-as="i">
+                <div class$="slide [[_slideClass(i,index)]]">
+                  <div class="slide-inner">
+                    <img src="[[_src(items,i)]]" alt$="[[it.title]]">
+                  </div>
+                </div>
+              </template>
+            </div>
+          </div>
+        </div>
+
+        <div class="dots">
+          <template is="dom-repeat" items="[[items]]" as="d" index-as="i">
+            <div class$="dot [[_dot(i,index)]]" on-click="_goto" data-index$="[[i]]"></div>
+          </template>
+        </div>
+      </div>
+    </template>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'nuxeo-folder-slideshow',
+      properties: {
+        items: { type:Array, value(){ return []; } },
+        index: { type:Number, value: 0 },
+        autoplay: { type:Boolean, value: false },
+        intervalMs: { type:Number, value: 4500 }
+      },
+
+      observers: ['_normalize(items)'],
+
+      attached(){ this._maybeAuto(); },
+      detached(){ this._stopAuto(); },
+
+      _maybeAuto(){
+        this._stopAuto();
+        if (this.autoplay && this.items && this.items.length > 1) {
+          this._timer = setInterval(()=> this._next(), this.intervalMs);
+        }
+      },
+      _stopAuto(){ if (this._timer) { clearInterval(this._timer); this._timer = null; } },
+
+      _normalize(items){
+        if (!items || !items.length || this.index >= items.length) this.index = 0;
+        this._maybeAuto();
+      },
+
+      _title(list,i){ return (list && list[i] && (list[i].title||'')) || ''; },
+      _one(i){ return (i|0)+1; },
+
+      _src(list,i){
+        var d = list && list[i]; if(!d) return '';
+        var t = d.contextParameters && d.contextParameters.thumbnail; if (t && t.url) return t.url;
+        var f = d.properties && d.properties['file:content'];
+        if (f && f.data) return f.data;
+        if (f && f.downloadUrl) return f.downloadUrl;
+        return '';
+      },
+
+      _trackTransform(i){ return 'transform: translateX(calc(-100% * '+ (i|0) +'));'; },
+      _slideClass(i,cur){ return i===cur ? 'is-current' : ''; },
+      _dot(i,cur){ return i===cur ? 'active' : ''; },
+
+      _prev(){ if (!this.items.length) return; this.index = (this.index + this.items.length - 1) % this.items.length; },
+      _next(){ if (!this.items.length) return; this.index = (this.index + 1) % this.items.length; },
+      _goto(e){ this.index = Number(e.currentTarget.dataset.index); },
+
+      _onKey(e){
+        if (e.key === 'ArrowLeft')  this._prev();
+        if (e.key === 'ArrowRight') this._next();
+      }
+    });
+  </script>
+</dom-module>

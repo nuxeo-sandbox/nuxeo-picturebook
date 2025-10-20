@@ -1,0 +1,57 @@
+<dom-module id="picturebook-results">
+  <template>
+    <!-- ask for thumbnails -->
+    <nuxeo-resource id="res" headers='{"enrichers.document":"thumbnail"}'></nuxeo-resource>
+    <nuxeo-folder-slideshow items="[[items]]"></nuxeo-folder-slideshow>
+  </template>
+
+<script>
+  Polymer({
+    is: 'picturebook-results',
+    properties: {
+      document: Object,
+      items: { type: Array, value() { return []; } }
+    },
+    observers: ['_docChanged(document)'],
+
+    attached() {
+      this.async(() => {
+        const page = this._closestPage();
+        if (page && page.shadowRoot) {
+          const tb  = page.shadowRoot.querySelector('#toolbar');
+          const tabs = page.shadowRoot.querySelector('#tabs');
+          if (tb)   tb.style.display = 'none';
+          if (tabs) tabs.style.display = 'none';
+          // also remove any top padding the header adds
+          const pageDiv = page.shadowRoot.querySelector('.page');
+          if (pageDiv) pageDiv.style.paddingTop = '0';
+        }
+      }, 1);
+    },
+
+    _closestPage() {
+      let n = this;
+      while (n) {
+        if (n.tagName && n.tagName.toLowerCase() === 'nuxeo-page') return n;
+        // walk through slot -> host chain
+        if (n.assignedSlot) n = n.assignedSlot.getRootNode().host;
+        else n = n.parentNode && n.parentNode.host ? n.parentNode.host : n.parentNode;
+      }
+      return null;
+    },
+
+    _docChanged(doc) {
+      if (!doc) return;
+      this.$.res.path = '/id/' + doc.uid + '/@children';
+      this.$.res.get().then((r) => {
+        const list = (r && r.entries) || [];
+        this.items = list.filter((e) => {
+          const f = e.properties && e.properties['file:content'];
+          return e.type === 'Picture' || (f && (f.data || f.downloadUrl));
+        });
+      }).catch(() => { this.items = []; });
+    }
+  });
+</script>
+
+</dom-module>

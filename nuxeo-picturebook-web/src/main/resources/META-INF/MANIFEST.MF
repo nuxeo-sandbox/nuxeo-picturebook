@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 1
+Bundle-Name: Nuxeo PictureBook Web UI
+Bundle-SymbolicName: org.nuxeo.picturebook.web;singleton=true
+Bundle-Version: 1.0.0
+Require-Bundle: org.nuxeo.web.resources.wro
+Nuxeo-Require: org.nuxeo.web.ui, org.nuxeo.web.resources.wro
+Nuxeo-Component: OSGI-INF/picturebook-doctype-contrib.xml,
+ OSGI-INF/slideshow-webresources.xml
