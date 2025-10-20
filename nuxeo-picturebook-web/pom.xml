@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>org.nuxeo.picturebook</groupId>
+  <artifactId>nuxeo-picturebook-web</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <packaging>jar</packaging>
+  <name>Nuxeo PictureBook Web UI</name>
+  <description>Web UI resources + deployment fragment for Nuxeo PictureBook</description>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.source>21</maven.compiler.source>
+    <maven.compiler.target>21</maven.compiler.target>
+    <maven.jar.plugin.version>3.3.0</maven.jar.plugin.version>
+  </properties>
+
+  <!-- Add compile/provided deps only if you actually need them -->
+
+  <build>
+    <!-- Copy only what we need; NO filtering -->
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>false</filtering>
+        <includes>
+          <include>META-INF/MANIFEST.MF</include>
+          <include>OSGI-INF/**</include>
+          <include>web/**</include>
+          <include>doc/**</include>
+        </includes>
+      </resource>
+    </resources>
+
+    <plugins>
+      <!-- Ensure Nuxeo-Component is written into the manifest -->
+<plugin>
+  <groupId>org.apache.maven.plugins</groupId>
+  <artifactId>maven-jar-plugin</artifactId>
+  <version>3.3.0</version>
+  <configuration>
+    <archive>
+      <manifestFile>${project.basedir}/src/main/resources/META-INF/MANIFEST.MF</manifestFile>
+      <manifestEntries>
+        <Nuxeo-Component>
+          OSGI-INF/picturebook-doctype-contrib.xml, OSGI-INF/slideshow-webresources.xml
+        </Nuxeo-Component>
+      </manifestEntries>
+    </archive>
+    <useDefaultManifestFile>false</useDefaultManifestFile>
+    <forceCreation>true</forceCreation>
+  </configuration>
+</plugin>
+
+    </plugins>
+  </build>
+</project>

@@ -1,0 +1,50 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.nuxeo</groupId>
+    <artifactId>nuxeo-parent</artifactId>
+    <version>2025.0</version>
+  </parent>
+
+  <groupId>org.nuxeo.picturebook</groupId>
+  <artifactId>nuxeo-picturebook-parent</artifactId>
+  <name>Nuxeo PictureBook parent</name>
+  <version>1.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <properties>
+    <!-- Skip Nuxeo enforcer rules by default -->
+    <nuxeo.skip.enforcer>true</nuxeo.skip.enforcer>
+    <nuxeo.target.version>2025.0</nuxeo.target.version>
+  </properties>
+
+  <modules>
+    <module>nuxeo-picturebook-web</module>
+    <module>nuxeo-picturebook-package</module>
+  </modules>
+
+<repositories>
+  <repository>
+    <id>public</id>
+    <url>https://packages.nuxeo.com/repository/maven-public</url>
+    <releases>
+      <enabled>true</enabled>
+    </releases>
+    <snapshots>
+      <enabled>false</enabled>
+    </snapshots>
+  </repository>
+  <repository>
+    <id>maven-private</id>
+    <url>https://packages.nuxeo.com/repository/maven-private</url>
+    <releases>
+      <enabled>true</enabled>
+    </releases>
+    <snapshots>
+      <enabled>false</enabled>
+    </snapshots>
+  </repository>
+</repositories>
+
+</project>
