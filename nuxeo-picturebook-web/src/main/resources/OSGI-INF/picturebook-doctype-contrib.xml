@@ -21,6 +21,11 @@
         <type>PictureBook</type>
       </subtypes>
     </doctype>
+    <doctype name="PictureBook" append="true">
+      <subtypes>
+        <type>Picture</type>
+      </subtypes>
+    </doctype>
   </extension>
 
 </component>
